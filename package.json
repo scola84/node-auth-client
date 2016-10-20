@@ -1,0 +1,27 @@
+{
+  "name": "@scola/auth-client",
+  "version": "0.0.0",
+  "description": "Authorization (client)",
+  "repository": "github:scola84/node-auth-client",
+  "author": "M.C. van den Boogaart <scola@kvdb.name>",
+  "license": "MIT",
+  "main": "./dist/auth-client.js",
+  "jsnext:main": "index.js",
+  "dependencies": {
+    "@scola/auth-common": "^0.0.0"
+  },
+  "devDependencies": {
+    "rollup": "^0.36.1",
+    "rollup-plugin-buble": "^0.14.0",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "uglify-js": "^2.7.3"
+  },
+  "scripts": {
+    "build": "npm run cleanup && npm run rollup",
+    "build:min": "npm run build && npm run min",
+    "cleanup": "rm -rf dist",
+    "min": "uglifyjs dist/auth-client.js -m -o dist/auth-client.min.js",
+    "prepublish": "npm run build:min",
+    "rollup": "rollup -c"
+  }
+}
