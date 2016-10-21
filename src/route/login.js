@@ -1,4 +1,5 @@
 import {
+  event,
   panel,
   itemList,
   inputItem,
@@ -24,6 +25,8 @@ export default function(router, factory, i18n) {
     const string = i18n.string();
 
     const loginPanel = panel();
+
+    loginPanel.root().classed('login', true);
 
     loginPanel.body().styles({
       background: 'none'
@@ -63,7 +66,7 @@ export default function(router, factory, i18n) {
     password.secondary().icon('ion-ios-arrow-thin-right');
 
     password.secondary().icon().select(':first-child').styles({
-      'background': '#AAA',
+      'background': '#007AFF',
       'color': '#FFF',
       'cursor': 'pointer',
       'height': '1em',
@@ -83,39 +86,45 @@ export default function(router, factory, i18n) {
 
     list.append(persistent, true);
 
-    function handleLogin() {
+    function handleSubmit() {
+      event.preventDefault();
+      loginPanel.lock(true);
+
       passwordModel.insert((error, result) => {
+        loginPanel.lock(false);
         list.comment(false);
 
         if (error) {
           list.comment(error.toString(string, null, 'scola.auth.'));
           list.comment().style('color', 'red');
-        } else {
-          if (passwordModel.get('persistent') === true) {
-            tokenModel.storage(localStorage);
-          } else {
-            tokenModel.storage(sessionStorage);
-          }
 
-          tokenModel
-            .set('token', result.token)
-            .commit()
-            .save();
-
-          route.target().destroy();
-          routeIn(router, tokenModel, User.fromObject(result.user));
+          return;
         }
+
+        if (passwordModel.get('persistent') === true) {
+          tokenModel.storage(localStorage);
+        } else {
+          tokenModel.storage(sessionStorage);
+        }
+
+        tokenModel
+          .set('token', result.token)
+          .commit()
+          .save();
+
+        route.target().destroy();
+        routeIn(router, tokenModel, User.fromObject(result.user));
       });
     }
 
     function handleDestroy() {
       route.removeListener('destroy', handleDestroy);
-      password.secondary().icon().on('click', null);
+      loginPanel.root().on('submit', null);
     }
 
     function construct() {
       route.on('destroy', handleDestroy);
-      password.secondary().icon().on('click', handleLogin);
+      loginPanel.root().on('submit', handleSubmit);
     }
 
     construct();
