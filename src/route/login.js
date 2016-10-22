@@ -1,5 +1,4 @@
 import {
-  event,
   panel,
   itemList,
   inputItem,
@@ -61,11 +60,9 @@ export default function(router, factory, i18n) {
       .placeholder(string.get('scola.auth.password'))
       .model(passwordModel);
 
-    password.secondary(true);
+    password.secondary().button('ion-ios-arrow-thin-right', '2em', 'submit');
 
-    password.secondary().icon('ion-ios-arrow-thin-right');
-
-    password.secondary().icon().select(':first-child').styles({
+    password.secondary().button().select(':first-child').styles({
       'background': '#007AFF',
       'color': '#FFF',
       'cursor': 'pointer',
@@ -87,7 +84,6 @@ export default function(router, factory, i18n) {
     list.append(persistent, true);
 
     function handleSubmit() {
-      event.preventDefault();
       loginPanel.lock(true);
 
       passwordModel.insert((error, result) => {
