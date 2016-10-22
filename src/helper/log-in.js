@@ -23,6 +23,9 @@ export default function logIn(router, model) {
       return;
     }
 
-    routeIn(router, model, User.fromObject(result.user));
+    const user = User.fromObject(result.user)
+      .token(token);
+
+    routeIn(router, model, user);
   });
 }

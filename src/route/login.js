@@ -108,8 +108,11 @@ export default function(router, factory, i18n) {
           .commit()
           .save();
 
+        const user = User.fromObject(result.user)
+          .token(result.token);
+
         route.target().destroy();
-        routeIn(router, tokenModel, User.fromObject(result.user));
+        routeIn(router, tokenModel, user);
       });
     }
 
