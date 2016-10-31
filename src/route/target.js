@@ -2,13 +2,13 @@ import {
   popOver
 } from '@scola/d3';
 
-export default function (router) {
+export default function authTarget(router) {
   router
     .target('scola.auth')
     .authorize((user) => {
       return user === null;
     })
-    .render((target) => {
+    .render(() => {
       const popover = popOver()
         .lock(true)
         .move(false)
@@ -17,10 +17,6 @@ export default function (router) {
 
       popover.root().styles({
         background: 'none'
-      });
-
-      popover.root().on('destroy', () => {
-        target.destroy(false);
       });
 
       return popover;
