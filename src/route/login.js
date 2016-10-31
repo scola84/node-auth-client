@@ -108,14 +108,14 @@ export default function authLoginRoute(router, factory, i18n) {
         const user = User.fromObject(result.user)
           .token(result.token);
 
+        passwordModel.rollback();
         route.target().destroy();
+
         routeIn(router, tokenModel, user);
       });
     }
 
     function handleDestroy() {
-      passwordModel.rollback();
-
       loginPanel.root().on('destroy', handleDestroy);
       loginPanel.root().on('submit', null);
     }
