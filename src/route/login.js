@@ -10,19 +10,18 @@ import { User } from '@scola/auth-common';
 import routeIn from '../helper/route-in';
 
 export default function authLoginRoute(router, factory, i18n) {
+  const passwordModel = objectModel('scola.auth.password')
+    .model(factory
+      .model('scola.auth.password')
+      .object());
+
+  const tokenModel = objectModel('scola.auth.token')
+    .model(factory
+      .model('scola.auth.token')
+      .object());
+
   function render(route) {
     const string = i18n.string();
-
-    const passwordModel = objectModel('scola.auth.password')
-      .model(factory
-        .model('scola.auth.password')
-        .object());
-
-    const tokenModel = objectModel('scola.auth.token')
-      .model(factory
-        .model('scola.auth.token')
-        .object());
-
     const loginPanel = panel();
 
     loginPanel.root()
@@ -115,7 +114,8 @@ export default function authLoginRoute(router, factory, i18n) {
     }
 
     function handleDestroy() {
-      passwordModel.destroy();
+      passwordModel.rollback();
+
       loginPanel.root().on('destroy', handleDestroy);
       loginPanel.root().on('submit', null);
     }
