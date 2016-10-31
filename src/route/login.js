@@ -9,7 +9,7 @@ import {
 import { User } from '@scola/auth-common';
 import routeIn from '../helper/route-in';
 
-export default function(router, factory, i18n) {
+export default function authLoginRoute(router, factory, i18n) {
   const passwordModel = objectModel('scola.auth.password')
     .model(factory
       .model('scola.auth.password')
@@ -22,14 +22,10 @@ export default function(router, factory, i18n) {
 
   function render(route) {
     const string = i18n.string();
-
     const loginPanel = panel();
 
-    loginPanel.root().classed('login', true);
-
-    loginPanel.body().styles({
-      background: 'none'
-    });
+    loginPanel.root()
+      .classed('login', true);
 
     loginPanel.body()
       .append('div')
@@ -39,7 +35,8 @@ export default function(router, factory, i18n) {
         'width': '100%'
       });
 
-    const list = itemList();
+    const list = itemList()
+      .inset(true);
 
     list.root().styles({
       'padding-bottom': '1em'
@@ -117,12 +114,13 @@ export default function(router, factory, i18n) {
     }
 
     function handleDestroy() {
-      route.removeListener('destroy', handleDestroy);
+      passwordModel.destroy();
+      loginPanel.root().on('destroy', handleDestroy);
       loginPanel.root().on('submit', null);
     }
 
     function construct() {
-      route.on('destroy', handleDestroy);
+      loginPanel.root().on('destroy', handleDestroy);
       loginPanel.root().on('submit', handleSubmit);
     }
 
