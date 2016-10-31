@@ -5,10 +5,11 @@ import {
 export default function authTarget(router) {
   router
     .target('scola.auth')
-    .authorize((user) => {
-      return user === null;
-    })
     .render(() => {
+      if (router.user()) {
+        return null;
+      }
+
       const popover = popOver()
         .lock(true)
         .move(false)
