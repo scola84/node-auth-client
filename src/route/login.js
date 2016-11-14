@@ -108,7 +108,7 @@ export default function authLoginRoute(router, factory, i18n) {
         const user = User.fromObject(result.user)
           .token(result.token);
 
-        passwordModel.rollback();
+        passwordModel.clear();
         route.target().destroy();
 
         routeIn(router, tokenModel, user);
