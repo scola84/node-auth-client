@@ -3,7 +3,5 @@ export default function routeIn(router, model, user) {
     .user(user)
     .popState();
 
-  model
-    .set('auth', true)
-    .rollback();
+  model.set('auth', true);
 }

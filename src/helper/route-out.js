@@ -5,7 +5,5 @@ export default function routeOut(router, model) {
     .route('login')
     .go('replace');
 
-  model
-    .set('auth', false)
-    .rollback();
+  model.set('auth', false);
 }

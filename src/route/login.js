@@ -7,22 +7,32 @@ import {
 } from '@scola/d3';
 
 import { User } from '@scola/auth-common';
+
+import {
+  mapCache,
+  storageCache
+} from '@scola/cache';
+
 import routeIn from '../helper/route-in';
 
-export default function authLoginRoute(router, factory, i18n) {
-  const passwordModel = objectModel('scola.auth.password')
-    .model(factory
-      .model('scola.auth.password')
-      .object());
+export default function authLoginRoute(router, connection, i18n) {
+  const passwordCache = mapCache('scola.auth.password');
+  const tokenCache = storageCache('scola.auth.token')
+    .storage(localStorage);
 
-  const tokenModel = objectModel('scola.auth.token')
-    .model(factory
-      .model('scola.auth.token')
-      .object());
+  const passwordModel = objectModel('/scola.auth.password')
+    .connection(connection)
+    .cache(passwordCache);
+
+  const tokenModel = objectModel('/scola.auth.token')
+    .connection(connection)
+    .cache(tokenCache);
 
   function render(route) {
     const string = i18n.string();
     const loginPanel = panel();
+
+    route.element(loginPanel);
 
     loginPanel.root()
       .classed('login', true);
@@ -95,23 +105,26 @@ export default function authLoginRoute(router, factory, i18n) {
         }
 
         if (passwordModel.get('persistent') === true) {
-          tokenModel.storage(localStorage);
+          tokenCache.storage(localStorage);
         } else {
-          tokenModel.storage(sessionStorage);
+          tokenCache.storage(sessionStorage);
         }
 
         tokenModel
           .set('token', result.token)
-          .commit()
-          .save();
+          .save(() => {
+            const user = User
+              .fromObject(result.user)
+              .token(result.token);
 
-        const user = User.fromObject(result.user)
-          .token(result.token);
-
-        passwordModel.clear();
-        route.target().destroy();
-
-        routeIn(router, tokenModel, user);
+            passwordModel
+              .flush()
+              .cache()
+              .flush(true, () => {
+                route.target().destroy();
+                routeIn(router, tokenModel, user);
+              });
+          });
       });
     }
 
@@ -126,12 +139,7 @@ export default function authLoginRoute(router, factory, i18n) {
     }
 
     construct();
-
-    return loginPanel;
   }
 
-  router
-    .target('scola.auth')
-    .route('login')
-    .render(render);
+  router.render('login@scola.auth', render);
 }

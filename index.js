@@ -1,6 +1,3 @@
-import passwordModel from './src/model/password';
-import tokenModel from './src/model/token';
-
 import targetRoute from './src/route/target';
 import loginRoute from './src/route/login';
 
@@ -10,12 +7,9 @@ export { User } from '@scola/auth-common';
 export { default as logIn } from './src/helper/log-in';
 export { default as logOut } from './src/helper/log-out';
 
-export function authClient(router, factory, i18n, connection) {
+export function authClient(router, connection, i18n) {
   data(i18n);
-  
-  passwordModel(factory, connection);
-  tokenModel(factory, connection);
 
   targetRoute(router);
-  loginRoute(router, factory, i18n);
+  loginRoute(router, connection, i18n);
 }
