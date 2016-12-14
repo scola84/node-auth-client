@@ -8,9 +8,9 @@
   "main": "./dist/auth-client.js",
   "jsnext:main": "index.js",
   "dependencies": {
-    "@scola/auth-common": "^3.0.0",
+    "@scola/auth-common": "^3.0.3",
     "@scola/cache": "^1.0.0",
-    "@scola/d3": "^2.0.0",
+    "@scola/d3": "^3.0.0",
     "@scola/error": "^4.2.0"
   },
   "devDependencies": {
