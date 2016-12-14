@@ -55,6 +55,7 @@ export default function authLoginRoute(router, connection, i18n) {
     loginPanel.append(list, true);
 
     const username = inputItem()
+      .type('email')
       .name('username')
       .placeholder(string.get('scola.auth.username'))
       .model(passwordModel);
@@ -141,5 +142,8 @@ export default function authLoginRoute(router, connection, i18n) {
     construct();
   }
 
-  router.render('login@scola.auth', render);
+  router.render(
+    'login@scola.auth',
+    render
+  );
 }

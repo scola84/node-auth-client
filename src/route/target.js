@@ -1,7 +1,7 @@
 import { popOver } from '@scola/d3';
 
 export default function authTarget(router) {
-  router.render('scola.auth', (target) => {
+  function render(target) {
     if (router.user()) {
       target.element(false);
       return;
@@ -29,5 +29,10 @@ export default function authTarget(router) {
     }
 
     construct();
-  });
+  }
+
+  router.render(
+    'scola.auth',
+    render
+  );
 }
