@@ -1,3 +1,10 @@
+import { User } from '@scola/auth-common';
+
+import {
+  mapCache,
+  storageCache
+} from '@scola/cache';
+
 import {
   panel,
   itemList,
@@ -5,13 +12,6 @@ import {
   switchItem,
   objectModel
 } from '@scola/d3';
-
-import { User } from '@scola/auth-common';
-
-import {
-  mapCache,
-  storageCache
-} from '@scola/cache';
 
 import routeIn from '../helper/route-in';
 

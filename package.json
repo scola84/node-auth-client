@@ -8,13 +8,15 @@
   "main": "./dist/auth-client.js",
   "jsnext:main": "index.js",
   "dependencies": {
-    "@scola/auth-common": "^1.0.0"
+    "@scola/auth-common": "^2.0.0",
+    "@scola/cache": "^1.0.0"
   },
   "devDependencies": {
-    "rollup": "^0.36.3",
-    "rollup-plugin-buble": "^0.14.0",
+    "rollup": "^0.37.0",
+    "rollup-plugin-buble": "^0.15.0",
+    "rollup-plugin-commonjs": "^5.0.5",
     "rollup-plugin-node-resolve": "^2.0.0",
-    "uglify-js": "^2.7.4"
+    "uglify-js": "^2.7.5"
   },
   "scripts": {
     "build": "npm run cleanup && npm run rollup",
