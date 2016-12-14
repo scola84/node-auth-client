@@ -8,9 +8,11 @@ export default {
   format: 'umd',
   moduleName: 'auth',
   external: [
+    '@scola/core',
     '@scola/d3'
   ],
   globals: {
+    '@scola/core': 'core',
     '@scola/d3': 'd3'
   },
   plugins: [
