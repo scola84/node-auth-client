@@ -9,7 +9,9 @@
   "jsnext:main": "index.js",
   "dependencies": {
     "@scola/auth-common": "^2.0.0",
-    "@scola/cache": "^1.0.0"
+    "@scola/cache": "^1.0.0",
+    "@scola/d3": "^2.0.0",
+    "@scola/error": "^4.2.0"
   },
   "devDependencies": {
     "rollup": "^0.37.0",
