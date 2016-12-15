@@ -1,6 +1,6 @@
 {
   "name": "@scola/auth-client",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Authorization (client)",
   "repository": "github:scola84/node-auth-client",
   "author": "M.C. van den Boogaart <scola@kvdb.name>",
