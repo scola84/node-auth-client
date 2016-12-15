@@ -1,4 +1,4 @@
-import { ScolaError } from '@scola/error';
+import { ScolaError } from '@scola/common';
 
 export default function authorize(route, next) {
   const user = route
