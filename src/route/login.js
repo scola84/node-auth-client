@@ -46,7 +46,7 @@ export default function authLoginRoute(router, connection, i18n) {
       });
 
     const list = itemList()
-      .inset(true);
+      .inset();
 
     list.root().styles({
       'padding-bottom': '1em'
