@@ -11,6 +11,6 @@
     "@scola/auth-common": "^3.1.0",
     "@scola/cache": "^1.1.0",
     "@scola/core": "^1.2.0",
-    "@scola/d3": "^3.1.0"
+    "@scola/d3": "^3.1.2"
   }
 }
