@@ -1,4 +1,6 @@
-import { User } from '@scola/auth-common';
+import {
+  passwordValidator
+} from '@scola/auth-common';
 
 import {
   mapCache,
@@ -10,29 +12,28 @@ import {
   itemList,
   inputItem,
   switchItem,
-  objectModel
+  model
 } from '@scola/d3';
 
 import routeIn from '../helper/route-in';
 
-export default function authLoginRoute(router, connection, i18n) {
+export default function authLoginRoute(router, connection, auth, i18n) {
+  const string = i18n.string();
+
   const passwordCache = mapCache('scola.auth.password');
   const tokenCache = storageCache('scola.auth.token')
     .storage(localStorage);
 
-  const passwordModel = objectModel('/scola.auth.password')
+  const passwordModel = model('/scola.auth.password')
     .connection(connection)
     .cache(passwordCache);
 
-  const tokenModel = objectModel('/scola.auth.token')
+  const tokenModel = model('/scola.auth.token')
     .connection(connection)
     .cache(tokenCache);
 
   function render(route) {
-    const string = i18n.string();
     const loginPanel = panel();
-
-    route.element(loginPanel);
 
     loginPanel.root()
       .classed('login', true);
@@ -45,14 +46,14 @@ export default function authLoginRoute(router, connection, i18n) {
         'width': '100%'
       });
 
-    const list = itemList()
+    const formList = itemList()
       .inset();
 
-    list.root().styles({
+    formList.root().styles({
       'padding-bottom': '1em'
     });
 
-    loginPanel.append(list, true);
+    loginPanel.append(formList);
 
     const username = inputItem()
       .type('email')
@@ -60,7 +61,7 @@ export default function authLoginRoute(router, connection, i18n) {
       .placeholder(string.get('scola.auth.username'))
       .model(passwordModel);
 
-    list.append(username, true);
+    formList.append(username);
 
     const password = inputItem()
       .type('password')
@@ -82,61 +83,77 @@ export default function authLoginRoute(router, connection, i18n) {
       'display': 'flex'
     });
 
-    list.append(password, true);
+    formList.append(password);
 
     const persistent = switchItem()
       .name('persistent')
       .text(string.get('scola.auth.persistent'))
       .model(passwordModel);
 
-    list.append(persistent, true);
+    formList.append(persistent);
 
     function handleSubmit() {
       loginPanel.lock(true);
 
-      passwordModel.insert((error, result) => {
-        loginPanel.lock(false);
-        list.comment(false);
-
+      passwordValidator.validate(passwordModel.local(), (error) => {
         if (error) {
-          list.comment(error.toString(string, null, 'scola.auth.'));
-          list.comment().style('color', 'red');
+          loginPanel.lock(false);
+          formList.comment(false);
+
+          formList.comment(error.toString(string, null, 'scola.auth.'));
+          formList.comment().style('color', 'red');
 
           return;
         }
 
-        if (passwordModel.get('persistent') === true) {
-          tokenCache.storage(localStorage);
-        } else {
-          tokenCache.storage(sessionStorage);
-        }
+        passwordModel.insert((insertError, result) => {
+          loginPanel.lock(false);
+          formList.comment(false);
 
-        tokenModel
-          .set('token', result.token)
-          .save(() => {
-            const user = User
-              .fromObject(result.user)
-              .token(result.token);
+          if (insertError) {
+            formList.comment(insertError.toString(string, null, 'scola.auth.'));
+            formList.comment().style('color', 'red');
 
-            passwordModel
-              .flush()
-              .cache()
-              .flush(true, () => {
-                route.target().destroy();
-                routeIn(router, tokenModel, user);
-              });
-          });
+            return;
+          }
+
+          if (passwordModel.get('persistent') === true) {
+            tokenCache.storage(localStorage);
+          } else {
+            tokenCache.storage(sessionStorage);
+          }
+
+          tokenModel
+            .set('token', result.token)
+            .save(() => {
+              const user = auth
+                .user(result.user)
+                .token(result.token);
+
+              passwordModel
+                .flush()
+                .cache()
+                .flush(true, () => {
+                  route.target().destroy();
+                  routeIn(router, tokenModel, user);
+                });
+            });
+        });
       });
     }
 
     function handleDestroy() {
-      loginPanel.root().on('destroy', handleDestroy);
+      loginPanel.root().on('destroy', null);
       loginPanel.root().on('submit', null);
+
+      formList.destroy();
     }
 
     function construct() {
       loginPanel.root().on('destroy', handleDestroy);
       loginPanel.root().on('submit', handleSubmit);
+
+      route.element(loginPanel);
     }
 
     construct();

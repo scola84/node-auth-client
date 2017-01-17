@@ -1,9 +1,8 @@
-import { User } from '@scola/auth-common';
 import logOut from './log-out';
 import routeIn from './route-in';
 import routeOut from './route-out';
 
-export default function logIn(router, model) {
+export default function logIn(router, auth, model) {
   function insert(token) {
     model.insert((error, result) => {
       if (error) {
@@ -11,8 +10,8 @@ export default function logIn(router, model) {
         return;
       }
 
-      const user = User
-        .fromObject(result.user)
+      const user = auth
+        .user(result.user)
         .token(token);
 
       routeIn(router, model, user);

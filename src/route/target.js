@@ -1,19 +1,20 @@
 import { popOver } from '@scola/d3';
 
 export default function authTarget(router) {
-  function render(target) {
+  function checkUser(target, next) {
     if (router.user()) {
-      target.element(false);
+      next(new Error('500 invalid_user'));
       return;
     }
 
+    next();
+  }
+
+  function render(target) {
     const popover = popOver()
       .lock(true)
       .move(false)
-      .slider(true)
       .media('34em', '34em');
-
-    target.element(popover);
 
     popover.root().styles({
       background: 'none'
@@ -26,6 +27,7 @@ export default function authTarget(router) {
 
     function construct() {
       target.on('destroy', handleDestroy);
+      target.element(popover);
     }
 
     construct();
@@ -33,6 +35,7 @@ export default function authTarget(router) {
 
   router.render(
     'scola.auth',
+    checkUser,
     render
   );
 }
