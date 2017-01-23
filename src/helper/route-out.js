@@ -1,9 +1,12 @@
-export default function routeOut(router, model) {
-  router
-    .user(false)
+export default function routeOut(client) {
+  client
+    .router()
     .target('scola.auth')
     .route('login')
     .go('replace');
 
-  model.set('auth', false);
+  client
+    .auth()
+    .model()
+    .set('auth', false);
 }

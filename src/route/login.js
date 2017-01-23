@@ -17,20 +17,21 @@ import {
 
 import routeIn from '../helper/route-in';
 
-export default function authLoginRoute(router, connection, auth, i18n) {
-  const string = i18n.string();
+export default function authLoginRoute(client) {
+  const string = client.i18n().string();
 
   const passwordCache = mapCache('scola.auth.password');
   const tokenCache = storageCache('scola.auth.token')
     .storage(localStorage);
 
-  const passwordModel = model('/scola.auth.password')
-    .connection(connection)
-    .cache(passwordCache);
-
-  const tokenModel = model('/scola.auth.token')
-    .connection(connection)
+  const tokenModel = client
+    .auth()
+    .model()
     .cache(tokenCache);
+
+  const passwordModel = model('/scola.auth.password')
+    .connection(tokenModel.connection())
+    .cache(passwordCache);
 
   function render(route) {
     const loginPanel = panel();
@@ -92,6 +93,41 @@ export default function authLoginRoute(router, connection, auth, i18n) {
 
     formList.append(persistent);
 
+    function handleError(error) {
+      formList.comment(error.toString(string, null, 'scola.auth.'));
+      formList.comment().style('color', 'red');
+    }
+
+    function handleInsert(result) {
+      loginPanel.lock(false);
+      formList.comment(false);
+
+      if (passwordModel.get('persistent') === true) {
+        tokenCache.storage(localStorage);
+      } else {
+        tokenCache.storage(sessionStorage);
+      }
+
+      tokenModel
+        .set('token', result.token)
+        .save(() => {
+          const user = client
+            .auth()
+            .user(result.user)
+            .token(result.token);
+
+          client.user(user);
+
+          passwordModel
+            .flush()
+            .cache()
+            .flush(true, () => {
+              route.target().destroy();
+              routeIn(client);
+            });
+        });
+    }
+
     function handleSubmit() {
       loginPanel.lock(true);
 
@@ -106,43 +142,14 @@ export default function authLoginRoute(router, connection, auth, i18n) {
           return;
         }
 
-        passwordModel.insert((insertError, result) => {
-          loginPanel.lock(false);
-          formList.comment(false);
-
-          if (insertError) {
-            formList.comment(insertError.toString(string, null, 'scola.auth.'));
-            formList.comment().style('color', 'red');
-
-            return;
-          }
-
-          if (passwordModel.get('persistent') === true) {
-            tokenCache.storage(localStorage);
-          } else {
-            tokenCache.storage(sessionStorage);
-          }
-
-          tokenModel
-            .set('token', result.token)
-            .save(() => {
-              const user = auth
-                .user(result.user)
-                .token(result.token);
-
-              passwordModel
-                .flush()
-                .cache()
-                .flush(true, () => {
-                  route.target().destroy();
-                  routeIn(router, tokenModel, user);
-                });
-            });
-        });
+        passwordModel.insert();
       });
     }
 
     function handleDestroy() {
+      passwordModel.removeListener('error', handleError);
+      passwordModel.removeListener('insert', handleInsert);
+
       loginPanel.root().on('destroy', null);
       loginPanel.root().on('submit', null);
 
@@ -150,16 +157,21 @@ export default function authLoginRoute(router, connection, auth, i18n) {
     }
 
     function construct() {
+      passwordModel.on('error', handleError);
+      passwordModel.on('insert', handleInsert);
+
       loginPanel.root().on('destroy', handleDestroy);
       loginPanel.root().on('submit', handleSubmit);
 
       route.element(loginPanel);
+
+      username.input().node().focus();
     }
 
     construct();
   }
 
-  router.render(
+  client.router().render(
     'login@scola.auth',
     render
   );

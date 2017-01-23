@@ -1,8 +1,8 @@
 import { popOver } from '@scola/d3';
 
-export default function authTarget(router) {
+export default function authTarget(client) {
   function checkUser(target, next) {
-    if (router.user()) {
+    if (client.user()) {
       next(new Error('500 invalid_user'));
       return;
     }
@@ -22,7 +22,7 @@ export default function authTarget(router) {
 
     function handleDestroy() {
       target.removeListener('destroy', handleDestroy);
-      popover.destroy();
+      popover.hide(() => popover.destroy());
     }
 
     function construct() {
@@ -33,7 +33,7 @@ export default function authTarget(router) {
     construct();
   }
 
-  router.render(
+  client.router().render(
     'scola.auth',
     checkUser,
     render

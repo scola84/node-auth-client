@@ -1,7 +1,10 @@
-export default function routeIn(router, model, user) {
-  router
-    .user(user)
+export default function routeIn(client) {
+  client
+    .router()
     .popState();
 
-  model.set('auth', true);
+  client
+    .auth()
+    .model()
+    .set('auth', true);
 }
