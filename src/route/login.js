@@ -101,7 +101,8 @@ export default function authLoginRoute(client) {
     formList.append(persistent);
 
     function handleError(error) {
-      formList.comment(error.toString(string, null, 'scola.auth.'));
+      loginPanel.lock(false);
+      formList.comment(error.toString(string));
       formList.comment().style('color', 'red');
     }
 
@@ -143,7 +144,7 @@ export default function authLoginRoute(client) {
           loginPanel.lock(false);
           formList.comment(false);
 
-          formList.comment(error.toString(string, null, 'scola.auth.'));
+          formList.comment(error.toString(string, 'scola.auth.'));
           formList.comment().style('color', 'red');
 
           return;
