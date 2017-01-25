@@ -79,6 +79,7 @@ export default function authLoginRoute(client) {
       .secondary();
 
     submitButton.icon().styles({
+      'background': '#000',
       'color': '#FFF',
       'cursor': 'pointer',
       'height': '1em',
