@@ -57,23 +57,28 @@ export default function authLoginRoute(client) {
     loginPanel.append(formList);
 
     const username = inputItem()
-      .type('email')
       .name('username')
-      .placeholder(string.get('scola.auth.username'))
       .model(passwordModel);
+
+    const usernameInput = username
+      .input('email')
+      .placeholder(string.get('scola.auth.username'));
 
     formList.append(username);
 
     const password = inputItem()
-      .type('password')
       .name('password')
-      .placeholder(string.get('scola.auth.password'))
       .model(passwordModel);
 
-    password.secondary().button('ion-ios-arrow-thin-right', '2em', 'submit');
+    password
+      .input('password')
+      .placeholder(string.get('scola.auth.password'));
 
-    password.secondary().button().select(':first-child').styles({
-      'background': '#007AFF',
+    const submitButton = password
+      .button('ion-ios-arrow-thin-right')
+      .secondary();
+
+    submitButton.icon().styles({
       'color': '#FFF',
       'cursor': 'pointer',
       'height': '1em',
@@ -88,8 +93,10 @@ export default function authLoginRoute(client) {
 
     const persistent = switchItem()
       .name('persistent')
-      .text(string.get('scola.auth.persistent'))
       .model(passwordModel);
+
+    persistent.text(string.get('scola.auth.persistent'));
+    persistent.knob();
 
     formList.append(persistent);
 
@@ -165,7 +172,7 @@ export default function authLoginRoute(client) {
 
       route.element(loginPanel);
 
-      username.input().node().focus();
+      usernameInput.input().node().focus();
     }
 
     construct();
