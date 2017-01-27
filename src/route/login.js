@@ -62,7 +62,8 @@ export default function authLoginRoute(client) {
 
     const usernameInput = username
       .input('email')
-      .placeholder(string.get('scola.auth.username'));
+      .placeholder(string.get('scola.auth.username'))
+      .tabindex(1);
 
     formList.append(username);
 
@@ -72,22 +73,21 @@ export default function authLoginRoute(client) {
 
     password
       .input('password')
-      .placeholder(string.get('scola.auth.password'));
+      .placeholder(string.get('scola.auth.password'))
+      .tabindex(2);
 
     const submitButton = password
       .button('ion-ios-arrow-thin-right')
-      .secondary();
+      .secondary()
+      .tabindex(4);
 
     submitButton.icon().styles({
       'background': '#007AFF',
+      'border-radius': '1em',
       'color': '#FFF',
       'cursor': 'pointer',
       'height': '1em',
-      'width': '1em',
-      'border-radius': '1em',
-      'justify-content': 'center',
-      'align-items': 'center',
-      'display': 'flex'
+      'width': '1em'
     });
 
     formList.append(password);
@@ -96,8 +96,12 @@ export default function authLoginRoute(client) {
       .name('persistent')
       .model(passwordModel);
 
-    persistent.text(string.get('scola.auth.persistent'));
-    persistent.knob();
+    persistent
+      .text(string.get('scola.auth.persistent'));
+
+    persistent
+      .knob()
+      .tabindex(3);
 
     formList.append(persistent);
 
