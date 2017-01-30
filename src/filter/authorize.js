@@ -7,14 +7,14 @@ export default function authorize(route, next) {
     .user();
 
   if (!user) {
-    next(new ScolaError('500 invalid_user'));
+    next(new ScolaError('401 invalid_user'));
     return;
   }
 
   const path = [route.path(), route.target().name()].join('@');
 
   if (!user.may('GET', path)) {
-    next(new ScolaError('500 unauthorized'));
+    next(new ScolaError('403 unauthorized'));
     return;
   }
 

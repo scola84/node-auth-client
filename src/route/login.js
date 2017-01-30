@@ -160,20 +160,23 @@ export default function authLoginRoute(client) {
     }
 
     function handleDestroy() {
+      route.removeListener('destroy', handleDestroy);
+
       passwordModel.removeListener('error', handleError);
       passwordModel.removeListener('insert', handleInsert);
 
-      loginPanel.root().on('destroy', null);
       loginPanel.root().on('submit', null);
 
       formList.destroy();
+      loginPanel.destroy();
     }
 
     function construct() {
+      route.on('destroy', handleDestroy);
+
       passwordModel.on('error', handleError);
       passwordModel.on('insert', handleInsert);
 
-      loginPanel.root().on('destroy', handleDestroy);
       loginPanel.root().on('submit', handleSubmit);
 
       route.element(loginPanel);
@@ -187,5 +190,5 @@ export default function authLoginRoute(client) {
   client.router().render(
     'login@scola.auth',
     render
-  );
+  ).default();
 }
