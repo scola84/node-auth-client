@@ -21,21 +21,12 @@ export default function authTarget(client) {
       background: 'none'
     });
 
-    function handleDestroy() {
-      target.removeListener('destroy', handleDestroy);
-
+    target.element(popover, () => {
       popover.hide(() => {
         popover.destroy();
         target.routes(false);
       });
-    }
-
-    function construct() {
-      target.on('destroy', handleDestroy);
-      target.element(popover);
-    }
-
-    construct();
+    });
   }
 
   client.router().render(

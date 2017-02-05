@@ -10,8 +10,7 @@ import {
 import {
   panel,
   itemList,
-  inputItem,
-  switchItem,
+  listItem,
   model
 } from '@scola/d3';
 
@@ -29,7 +28,7 @@ export default function authLoginRoute(client) {
     .model()
     .cache(tokenCache);
 
-  const passwordModel = model('/scola.auth.password')
+  const passwordModel = model('/scola.auth.password', true)
     .connection(tokenModel.connection())
     .cache(passwordCache);
 
@@ -47,32 +46,31 @@ export default function authLoginRoute(client) {
         'width': '100%'
       });
 
-    const formList = itemList()
+    const form = loginPanel
+      .append(itemList())
       .inset();
 
-    formList.root().styles({
+    form.root().styles({
       'padding-bottom': '1em'
     });
 
-    loginPanel.append(formList);
-
-    const username = inputItem()
-      .name('username')
-      .model(passwordModel);
+    const username = form
+      .append(listItem());
 
     const usernameInput = username
       .input('email')
+      .name('username')
+      .model(passwordModel)
       .placeholder(string.get('scola.auth.username'))
       .tabindex(1);
 
-    formList.append(username);
-
-    const password = inputItem()
-      .name('password')
-      .model(passwordModel);
+    const password = form
+      .append(listItem());
 
     password
       .input('password')
+      .name('password')
+      .model(passwordModel)
       .placeholder(string.get('scola.auth.password'))
       .tabindex(2);
 
@@ -90,30 +88,27 @@ export default function authLoginRoute(client) {
       'width': '1em'
     });
 
-    formList.append(password);
-
-    const persistent = switchItem()
-      .name('persistent')
-      .model(passwordModel);
+    const persistent = form
+      .append(listItem());
 
     persistent
       .text(string.get('scola.auth.persistent'));
 
     persistent
-      .knob()
+      .switch()
+      .name('persistent')
+      .model(passwordModel)
       .tabindex(3);
-
-    formList.append(persistent);
 
     function handleError(error) {
       loginPanel.lock(false);
-      formList.comment(error.toString(string));
-      formList.comment().style('color', 'red');
+      form.comment(error.toString(string));
+      form.comment().style('color', 'red');
     }
 
     function handleInsert(result) {
       loginPanel.lock(false);
-      formList.comment(false);
+      form.comment(false);
 
       if (passwordModel.get('persistent') === true) {
         tokenCache.storage(localStorage);
@@ -147,10 +142,10 @@ export default function authLoginRoute(client) {
       passwordValidator.validate(passwordModel.local(), (error) => {
         if (error) {
           loginPanel.lock(false);
-          formList.comment(false);
+          form.comment(false);
 
-          formList.comment(error.toString(string, 'scola.auth.'));
-          formList.comment().style('color', 'red');
+          form.comment(error.toString(string, 'scola.auth.'));
+          form.comment().style('color', 'red');
 
           return;
         }
@@ -159,32 +154,21 @@ export default function authLoginRoute(client) {
       });
     }
 
-    function handleDestroy() {
-      route.removeListener('destroy', handleDestroy);
+    passwordModel.on('error', handleError);
+    passwordModel.on('insert', handleInsert);
+    loginPanel.root().on('submit', handleSubmit);
 
+    route.element(loginPanel, () => {
       passwordModel.removeListener('error', handleError);
       passwordModel.removeListener('insert', handleInsert);
 
       loginPanel.root().on('submit', null);
 
-      formList.destroy();
+      form.destroy();
       loginPanel.destroy();
-    }
+    });
 
-    function construct() {
-      route.on('destroy', handleDestroy);
-
-      passwordModel.on('error', handleError);
-      passwordModel.on('insert', handleInsert);
-
-      loginPanel.root().on('submit', handleSubmit);
-
-      route.element(loginPanel);
-
-      usernameInput.input().node().focus();
-    }
-
-    construct();
+    usernameInput.input().node().focus();
   }
 
   client.router().render(
