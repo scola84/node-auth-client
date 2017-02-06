@@ -154,20 +154,20 @@ export default function authLoginRoute(client) {
       });
     }
 
-    passwordModel.on('error', handleError);
-    passwordModel.on('insert', handleInsert);
-    loginPanel.root().on('submit', handleSubmit);
-
-    route.element(loginPanel, () => {
+    function handleDestroy() {
       passwordModel.removeListener('error', handleError);
       passwordModel.removeListener('insert', handleInsert);
-
-      loginPanel.root().on('submit', null);
+      loginPanel.root().on('submit.scola-auth-client', null);
 
       form.destroy();
       loginPanel.destroy();
-    });
+    }
 
+    passwordModel.on('error', handleError);
+    passwordModel.on('insert', handleInsert);
+    loginPanel.root().on('submit.scola-auth-client', handleSubmit);
+
+    route.element(loginPanel, handleDestroy);
     usernameInput.input().node().focus();
   }
 
