@@ -15,7 +15,7 @@ export default function authTarget(client) {
     const popover = popOver()
       .lock(true)
       .move(false)
-      .media('34em', '34em');
+      .size('34em', '34em');
 
     popover.root().styles({
       background: 'none'
