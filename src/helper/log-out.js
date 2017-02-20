@@ -3,15 +3,8 @@ import routeOut from './route-out';
 export default function logOut(client) {
   const model = client.auth().model();
 
-  client
-    .user(false);
+  client.user(false);
+  model.flush(true);
 
-  model
-    .flush();
-
-  model
-    .cache()
-    .flush(true, () => {
-      routeOut(client);
-    });
+  routeOut(client);
 }

@@ -24,30 +24,26 @@ export default function logIn(client) {
   }
 
   model
-    .cache()
-    .storage(localStorage);
+    .storage(localStorage)
+    .load();
 
-  model.load(() => {
-    let token = model.get('token');
+  let token = model.get('token');
 
-    if (token) {
-      insert(token);
-      return;
-    }
+  if (token) {
+    insert(token);
+    return;
+  }
 
-    model
-      .cache()
-      .storage(sessionStorage);
+  model
+    .storage(sessionStorage)
+    .load();
 
-    model.load(() => {
-      token = model.get('token');
+  token = model.get('token');
 
-      if (token) {
-        insert(token);
-        return;
-      }
+  if (token) {
+    insert(token);
+    return;
+  }
 
-      routeOut(client);
-    });
-  });
+  routeOut(client);
 }

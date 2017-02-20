@@ -3,11 +3,6 @@ import {
 } from '@scola/auth-common';
 
 import {
-  mapCache,
-  storageCache
-} from '@scola/cache';
-
-import {
   panel,
   itemList,
   listItem,
@@ -19,18 +14,12 @@ import routeIn from '../helper/route-in';
 export default function authLoginRoute(client) {
   const string = client.i18n().string();
 
-  const passwordCache = mapCache('scola.auth.password');
-  const tokenCache = storageCache('scola.auth.token')
-    .storage(localStorage);
-
   const tokenModel = client
     .auth()
-    .model()
-    .cache(tokenCache);
+    .model();
 
   const passwordModel = model('/scola.auth.password', true)
-    .connection(tokenModel.connection())
-    .cache(passwordCache);
+    .connection(tokenModel.connection());
 
   function render(route) {
     const loginPanel = panel();
@@ -111,29 +100,25 @@ export default function authLoginRoute(client) {
       form.comment(false);
 
       if (passwordModel.get('persistent') === true) {
-        tokenCache.storage(localStorage);
+        tokenModel.storage(localStorage);
       } else {
-        tokenCache.storage(sessionStorage);
+        tokenModel.storage(sessionStorage);
       }
 
       tokenModel
         .set('token', result.token)
-        .save(() => {
-          const user = client
-            .auth()
-            .user(result.user)
-            .token(result.token);
+        .save();
 
-          client.user(user);
+      const user = client
+        .auth()
+        .user(result.user)
+        .token(result.token);
 
-          passwordModel
-            .flush()
-            .cache()
-            .flush(true, () => {
-              route.target().destroy();
-              routeIn(client);
-            });
-        });
+      client.user(user);
+      passwordModel.flush();
+      route.target().destroy();
+
+      routeIn(client);
     }
 
     function handleSubmit() {
