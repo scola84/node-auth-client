@@ -24,10 +24,15 @@ export default function authLoginRoute(client) {
   function render(route) {
     const loginPanel = panel();
 
-    loginPanel.root()
+    loginPanel
+      .root()
       .classed('login', true);
 
-    loginPanel.body()
+    loginPanel
+      .body()
+      .styles({
+        'padding': 0
+      })
       .append('div')
       .classed('scola identity', true)
       .styles({
