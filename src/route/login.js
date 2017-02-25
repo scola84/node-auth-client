@@ -6,10 +6,9 @@ import {
   panel,
   itemList,
   listItem,
-  model
+  model,
+  popAlert
 } from '@scola/d3';
-
-import routeIn from '../helper/route-in';
 
 export default function authLoginRoute(client) {
   const string = client.i18n().string();
@@ -94,49 +93,47 @@ export default function authLoginRoute(client) {
       .model(passwordModel)
       .tabindex(3);
 
-    function handleError(error) {
-      loginPanel.lock(false);
-      form.comment(error.toString(string));
-      form.comment().style('color', 'red');
+    function handleError(error, prefix) {
+      popAlert()
+        .text(error.toString(string, prefix))
+        .ok(string.format('scola.auth.ok'), () => {
+          usernameInput.input().node().focus();
+        });
     }
 
     function handleInsert(result) {
-      loginPanel.lock(false);
-      form.comment(false);
-
       if (passwordModel.get('persistent') === true) {
         tokenModel.storage(localStorage);
       } else {
         tokenModel.storage(sessionStorage);
       }
 
-      tokenModel
-        .set('token', result.token)
-        .save();
-
       const user = client
         .auth()
-        .user(result.user)
-        .token(result.token);
+        .user(result.user);
+
+      tokenModel
+        .set('auth', true)
+        .set('user', user.toObject())
+        .save();
 
       client.user(user);
       passwordModel.flush();
-      route.target().destroy();
 
-      routeIn(client);
+      route
+        .target()
+        .destroy();
+
+      route
+        .target()
+        .router()
+        .popState();
     }
 
     function handleSubmit() {
-      loginPanel.lock(true);
-
       passwordValidator.validate(passwordModel.local(), (error) => {
         if (error) {
-          loginPanel.lock(false);
-          form.comment(false);
-
-          form.comment(error.toString(string, 'scola.auth.'));
-          form.comment().style('color', 'red');
-
+          handleError(error, 'scola.auth.');
           return;
         }
 

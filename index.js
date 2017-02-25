@@ -10,6 +10,7 @@ export {
 export { default as authorize } from './src/filter/authorize';
 export { default as logIn } from './src/helper/log-in';
 export { default as logOut } from './src/helper/log-out';
+export { default as setUser } from './src/helper/set-user';
 
 export function load(client) {
   loadAuth(client);

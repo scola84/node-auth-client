@@ -14,7 +14,7 @@ export default function authorize(route, next) {
   const path = [route.path(), route.target().name()].join('@');
 
   if (!user.may('GET', path)) {
-    next(new ScolaError('403 unauthorized'));
+    next(new ScolaError('403 invalid_auth'));
     return;
   }
 
