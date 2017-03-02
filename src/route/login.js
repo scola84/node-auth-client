@@ -50,7 +50,7 @@ export default function authLoginRoute(client) {
     const username = form
       .append(listItem());
 
-    const usernameInput = username
+    username
       .input('email')
       .name('username')
       .model(passwordModel)
@@ -93,15 +93,32 @@ export default function authLoginRoute(client) {
       .model(passwordModel)
       .tabindex(3);
 
+    let pop = null;
+
     function handleError(error, prefix) {
-      popAlert()
+      if (error.code !== 'invalid_state') {
+        submitButton.class('ion-ios-arrow-thin-right');
+      }
+
+      if (pop) {
+        pop.destroy();
+      }
+
+      pop = popAlert()
+        .title(string.format('scola.auth.pop.title'))
         .text(error.toString(string, prefix))
-        .ok(string.format('scola.auth.ok'), () => {
-          usernameInput.input().node().focus();
+        .ok(string.format('scola.auth.pop.ok'), () => {
+          pop = null;
         });
     }
 
     function handleInsert(result) {
+      submitButton.class('ion-ios-arrow-thin-right');
+
+      if (pop) {
+        pop.destroy();
+      }
+
       if (passwordModel.get('persistent') === true) {
         tokenModel.storage(localStorage);
       } else {
@@ -118,7 +135,6 @@ export default function authLoginRoute(client) {
         .save();
 
       client.user(user);
-      passwordModel.flush();
 
       route
         .target()
@@ -131,6 +147,8 @@ export default function authLoginRoute(client) {
     }
 
     function handleSubmit() {
+      submitButton.class('ion-load-d');
+
       passwordValidator.validate(passwordModel.local(), (error) => {
         if (error) {
           handleError(error, 'scola.auth.');
@@ -144,6 +162,8 @@ export default function authLoginRoute(client) {
     function handleDestroy() {
       passwordModel.removeListener('error', handleError);
       passwordModel.removeListener('insert', handleInsert);
+      passwordModel.flush();
+
       loginPanel.root().on('submit.scola-auth-client', null);
 
       form.destroy();
@@ -152,10 +172,10 @@ export default function authLoginRoute(client) {
 
     passwordModel.on('error', handleError);
     passwordModel.on('insert', handleInsert);
+
     loginPanel.root().on('submit.scola-auth-client', handleSubmit);
 
     route.element(loginPanel, handleDestroy);
-    usernameInput.input().node().focus();
   }
 
   client.router().render(
