@@ -69,17 +69,9 @@ export default function authLoginRoute(client) {
 
     const submitButton = password
       .button('ion-ios-arrow-thin-right')
+      .circle()
       .secondary()
       .tabindex(4);
-
-    submitButton.icon().styles({
-      'background': '#007AFF',
-      'border-radius': '1em',
-      'color': '#FFF',
-      'cursor': 'pointer',
-      'height': '1em',
-      'width': '1em'
-    });
 
     const persistent = form
       .append(listItem());
