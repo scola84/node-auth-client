@@ -1,22 +1,22 @@
 import { ScolaError } from '@scola/error';
 
-export default function authorize(route, next) {
-  const user = route
-    .target()
-    .router()
-    .user();
+export default function authorize(verify = () => true) {
+  return (route, next) => {
+    const user = route
+      .target()
+      .router()
+      .user();
 
-  if (!user) {
-    next(new ScolaError('401 invalid_user'));
-    return;
-  }
+    if (!user) {
+      next(new ScolaError('401 invalid_user'));
+      return;
+    }
 
-  const path = [route.path(), route.target().name()].join('@');
+    if (!verify(user)) {
+      next(new ScolaError('403 invalid_auth'));
+      return;
+    }
 
-  if (!user.may('GET', path)) {
-    next(new ScolaError('403 invalid_auth'));
-    return;
-  }
-
-  next();
+    next();
+  };
 }
