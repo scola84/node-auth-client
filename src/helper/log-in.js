@@ -1,7 +1,10 @@
 import logOut from './log-out';
 
 export default function logIn(client) {
-  const model = client.auth().model();
+  const model = client
+    .auth()
+    .cache()
+    .model();
 
   if (!model.has('user')) {
     logOut(client);

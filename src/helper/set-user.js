@@ -1,12 +1,16 @@
 export default function setUser(client) {
-  const model = client.auth().model();
+  const cache = client
+    .auth()
+    .cache();
 
-  model
+  const model = cache.model();
+
+  cache
     .storage(localStorage)
     .load();
 
   if (!model.has('user')) {
-    model
+    cache
       .storage(sessionStorage)
       .load();
   }

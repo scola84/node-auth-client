@@ -13,9 +13,11 @@ import {
 export default function render(client) {
   const string = client.i18n().string();
 
-  const tokenModel = client
+  const tokenCache = client
     .auth()
-    .model();
+    .cache();
+
+  const tokenModel = tokenCache.model();
 
   const passwordModel = model('/scola.auth.password', true)
     .connection(tokenModel.connection());
@@ -112,9 +114,9 @@ export default function render(client) {
       }
 
       if (passwordModel.get('persistent') === true) {
-        tokenModel.storage(localStorage);
+        tokenCache.storage(localStorage);
       } else {
-        tokenModel.storage(sessionStorage);
+        tokenCache.storage(sessionStorage);
       }
 
       const user = client
@@ -123,8 +125,7 @@ export default function render(client) {
 
       tokenModel
         .set('auth', true)
-        .set('user', user.toObject())
-        .save();
+        .set('user', user.toObject());
 
       client.user(user);
 
@@ -154,7 +155,7 @@ export default function render(client) {
     function handleDestroy() {
       passwordModel.removeListener('error', handleError);
       passwordModel.removeListener('insert', handleInsert);
-      passwordModel.flush();
+      passwordModel.clear();
 
       loginPanel.root().on('submit.scola-auth-client', null);
 

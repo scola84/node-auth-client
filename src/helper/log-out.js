@@ -1,12 +1,15 @@
 export default function logOut(client) {
-  const model = client.auth().model();
+  const model = client
+    .auth()
+    .cache()
+    .model();
 
   client
     .user(false);
 
   model
     .set('auth', false)
-    .flush(true);
+    .clear();
 
   client
     .router()
