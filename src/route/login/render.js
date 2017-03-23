@@ -124,10 +124,11 @@ export default function render(client) {
         .user(result.user);
 
       tokenModel
-        .set('auth', true)
         .set('user', user.toObject());
 
-      client.user(user);
+      client
+        .user(user)
+        .is('auth', true);
 
       route
         .target()

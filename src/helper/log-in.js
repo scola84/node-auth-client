@@ -16,8 +16,8 @@ export default function logIn(client) {
   });
 
   model.once('insert', () => {
-    model
-      .set('auth', true);
+    client
+      .is('auth', true);
 
     client
       .router()

@@ -5,10 +5,10 @@ export default function logOut(client) {
     .model();
 
   client
-    .user(false);
+    .user(false)
+    .is('auth', false);
 
   model
-    .set('auth', false)
     .clear();
 
   client
