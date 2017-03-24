@@ -6,7 +6,7 @@ export default function logIn(client) {
     .cache()
     .model();
 
-  if (!model.has('user')) {
+  if (model.has('user') === false) {
     logOut(client);
     return;
   }

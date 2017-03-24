@@ -9,13 +9,13 @@ export default function setUser(client) {
     .storage(localStorage)
     .load();
 
-  if (!model.has('user')) {
+  if (model.has('user') === false) {
     cache
       .storage(sessionStorage)
       .load();
   }
 
-  if (!model.has('user')) {
+  if (model.has('user') === false) {
     return;
   }
 
