@@ -12,7 +12,7 @@ export default function render() {
     });
 
     target.element(popover, () => {
-      popover.hide().on('end', () => {
+      popover.show(false).on('end', () => {
         popover.destroy();
         target.routes(false);
       });
