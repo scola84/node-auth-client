@@ -94,7 +94,7 @@ export default function render(client) {
         submitButton.class('ion-ios-arrow-thin-right');
       }
 
-      if (pop) {
+      if (pop !== null) {
         pop.destroy();
       }
 
@@ -109,7 +109,7 @@ export default function render(client) {
     function handleInsert(result) {
       submitButton.class('ion-ios-arrow-thin-right');
 
-      if (pop) {
+      if (pop !== null) {
         pop.destroy();
       }
 
@@ -144,7 +144,7 @@ export default function render(client) {
       submitButton.class('ion-load-d');
 
       passwordValidator.validate(passwordModel.local(), (error) => {
-        if (error) {
+        if (error instanceof Error === true) {
           handleError(error, 'scola.auth.');
           return;
         }

@@ -2,11 +2,11 @@ import { ScolaError } from '@scola/error';
 
 export default function authorize(client) {
   return (target, next) => {
-    if (client.user()) {
-      next(new ScolaError('500 invalid_user'));
+    if (client.user() === null) {
+      next();
       return;
     }
 
-    next();
+    next(new ScolaError('500 invalid_user'));
   };
 }

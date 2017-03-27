@@ -7,12 +7,12 @@ export default function authorize(verify = () => true) {
       .router()
       .user();
 
-    if (!user) {
+    if (user === null) {
       next(new ScolaError('401 invalid_user'));
       return;
     }
 
-    if (!verify(user)) {
+    if (verify(user) === false) {
       next(new ScolaError('403 invalid_auth'));
       return;
     }
