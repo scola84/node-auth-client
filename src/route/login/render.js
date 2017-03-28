@@ -153,7 +153,23 @@ export default function render(client) {
       });
     }
 
+    function handleOpen(value) {
+      form.disabled(!value);
+
+      if (value === true) {
+        form.comment(false);
+        return;
+      }
+
+      form
+        .comment(string.format('scola.auth.closed'))
+        .comment()
+        .style('color', '#000');
+    }
+
     function handleDestroy() {
+      client.removeListener('open', handleOpen);
+
       passwordModel.removeListener('error', handleError);
       passwordModel.removeListener('insert', handleInsert);
       passwordModel.clear();
@@ -163,6 +179,8 @@ export default function render(client) {
       form.destroy();
       loginPanel.destroy();
     }
+
+    client.on('open', handleOpen);
 
     passwordModel.on('error', handleError);
     passwordModel.on('insert', handleInsert);
