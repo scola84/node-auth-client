@@ -1,5 +1,10 @@
 import logOut from './log-out';
 
+import {
+  AUTH_INVALID_SERVER,
+  AUTH_VALID
+} from './const';
+
 export default function logIn(client) {
   const model = client
     .auth()
@@ -12,12 +17,12 @@ export default function logIn(client) {
   }
 
   model.once('error', () => {
-    logOut(client);
+    logOut(client, AUTH_INVALID_SERVER);
   });
 
   model.once('insert', () => {
     client
-      .is('auth', true);
+      .is('auth', AUTH_VALID);
 
     client
       .router()

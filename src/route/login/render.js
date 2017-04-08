@@ -1,6 +1,4 @@
-import {
-  passwordValidator
-} from '@scola/auth-common';
+import { passwordValidator } from '@scola/auth-common';
 
 import {
   panel,
@@ -9,6 +7,8 @@ import {
   model,
   popAlert
 } from '@scola/d3';
+
+import { AUTH_VALID } from '../../helper/const';
 
 export default function render(client) {
   const string = client.i18n().string();
@@ -128,7 +128,7 @@ export default function render(client) {
 
       client
         .user(user)
-        .is('auth', true);
+        .is('auth', AUTH_VALID);
 
       route
         .target()

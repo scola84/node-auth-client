@@ -11,6 +11,12 @@ import setUser from './src/helper/set-user';
 import targetRoute from './src/route/target';
 import loginRoute from './src/route/login';
 
+import {
+  AUTH_INVALID_CLIENT,
+  AUTH_INVALID_SERVER,
+  AUTH_VALID
+} from './src/helper/const';
+
 function load(client) {
   loadAuth(client);
   targetRoute(client);
@@ -18,6 +24,9 @@ function load(client) {
 }
 
 export {
+  AUTH_INVALID_CLIENT,
+  AUTH_INVALID_SERVER,
+  AUTH_VALID,
   Auth,
   User,
   authorize,

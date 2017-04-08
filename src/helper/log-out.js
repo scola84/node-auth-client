@@ -1,4 +1,6 @@
-export default function logOut(client) {
+import { AUTH_INVALID_CLIENT } from './const';
+
+export default function logOut(client, state = AUTH_INVALID_CLIENT) {
   const model = client
     .auth()
     .cache()
@@ -6,10 +8,11 @@ export default function logOut(client) {
 
   client
     .user(false)
-    .is('auth', false);
+    .is('auth', state);
 
-  model
-    .clear();
+  if (state === AUTH_INVALID_CLIENT) {
+    model.clear();
+  }
 
   client
     .router()
