@@ -8,7 +8,7 @@ export default function logOut(client, state = AUTH_INVALID_CLIENT) {
 
   client
     .user(false)
-    .is('auth', state);
+    .state('auth', state);
 
   if (state === AUTH_INVALID_CLIENT) {
     model.clear();

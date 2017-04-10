@@ -128,7 +128,7 @@ export default function render(client) {
 
       client
         .user(user)
-        .is('auth', AUTH_VALID);
+        .state('auth', AUTH_VALID);
 
       route
         .target()

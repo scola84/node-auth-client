@@ -22,7 +22,7 @@ export default function logIn(client) {
 
   model.once('insert', () => {
     client
-      .is('auth', AUTH_VALID);
+      .state('auth', AUTH_VALID);
 
     client
       .router()
