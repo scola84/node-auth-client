@@ -66,7 +66,7 @@ export default function render(client) {
     const password = form
       .append(listItem());
 
-    password
+    const passwordInput = password
       .input('password')
       .name('password')
       .model(passwordModel)
@@ -175,6 +175,18 @@ export default function render(client) {
         .style('color', '#000');
     }
 
+    function handleCaps() {
+      if (event.detail === false) {
+        form.comment(false);
+        return;
+      }
+
+      form
+        .comment(string.format('scola.auth.caps'))
+        .comment()
+        .style('color', '#000');
+    }
+
     function handleDestroy() {
       client.removeListener('open', handleOpen);
 
@@ -183,6 +195,8 @@ export default function render(client) {
       passwordModel.clear();
 
       actionModel.removeListener('set', handleSubmit);
+
+      passwordInput.input().on('caps.scola-auth', null);
 
       form.destroy();
       loginPanel.destroy();
@@ -194,6 +208,8 @@ export default function render(client) {
     passwordModel.on('insert', handleInsert);
 
     actionModel.on('set', handleSubmit);
+
+    passwordInput.input().on('caps.scola-auth', handleCaps);
 
     route.element(loginPanel, handleDestroy);
   };
