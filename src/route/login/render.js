@@ -22,11 +22,15 @@ export default function render(client) {
   const passwordModel = model('/scola.auth.password', true)
     .connection(tokenModel.connection());
 
+  const actionModel = model('scola.auth.action');
+
   return (route) => {
-    const loginPanel = panel();
+    const loginPanel = panel()
+      .model(actionModel);
 
     loginPanel
       .root()
+      .attr('action', '/login')
       .classed('login', true);
 
     loginPanel
@@ -130,6 +134,10 @@ export default function render(client) {
         .user(user)
         .state('auth', AUTH_VALID);
 
+      loginPanel
+        .root()
+        .attr('action', null);
+
       route
         .target()
         .destroy();
@@ -174,7 +182,7 @@ export default function render(client) {
       passwordModel.removeListener('insert', handleInsert);
       passwordModel.clear();
 
-      loginPanel.root().on('submit.scola-auth-client', null);
+      actionModel.removeListener('set', handleSubmit);
 
       form.destroy();
       loginPanel.destroy();
@@ -185,7 +193,7 @@ export default function render(client) {
     passwordModel.on('error', handleError);
     passwordModel.on('insert', handleInsert);
 
-    loginPanel.root().on('submit.scola-auth-client', handleSubmit);
+    actionModel.on('set', handleSubmit);
 
     route.element(loginPanel, handleDestroy);
   };
