@@ -1,7 +1,7 @@
 import logOut from './log-out';
 
 import {
-  AUTH_INVALID_SERVER,
+  AUTH_INVALID,
   AUTH_VALID
 } from './const';
 
@@ -17,7 +17,7 @@ export default function logIn(client) {
   }
 
   model.once('error', () => {
-    logOut(client, AUTH_INVALID_SERVER);
+    logOut(client, AUTH_INVALID);
   });
 
   model.once('insert', () => {

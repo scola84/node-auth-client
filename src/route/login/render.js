@@ -24,6 +24,11 @@ export default function render(client) {
 
   const actionModel = model('scola.auth.action');
 
+  const persistentStorage = client.storage() ||
+    localStorage;
+
+  const temporaryStorage = sessionStorage;
+
   return (route) => {
     const loginPanel = panel()
       .model(actionModel);
@@ -118,9 +123,9 @@ export default function render(client) {
       }
 
       if (passwordModel.get('persistent') === true) {
-        tokenCache.storage(localStorage);
+        tokenCache.storage(persistentStorage);
       } else {
-        tokenCache.storage(sessionStorage);
+        tokenCache.storage(temporaryStorage);
       }
 
       const user = client
