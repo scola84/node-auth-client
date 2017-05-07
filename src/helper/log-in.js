@@ -1,3 +1,5 @@
+/*eslint no-use-before-define: [2, "nofunc"]*/
+
 import logOut from './log-out';
 
 import {
@@ -16,18 +18,24 @@ export default function logIn(client) {
     return;
   }
 
-  model.once('error', () => {
+  function handleError() {
+    model.removeListener('insert', handleInsert);
     logOut(client, AUTH_INVALID);
-  });
+  }
 
-  model.once('insert', () => {
+  function handleInsert() {
+    model.removeListener('error', handleError);
+
     client
       .state('auth', AUTH_VALID);
 
     client
       .router()
       .popState();
-  });
+  }
+
+  model.once('error', handleError);
+  model.once('insert', handleInsert);
 
   model.insert();
 }
