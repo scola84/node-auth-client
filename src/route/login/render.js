@@ -61,7 +61,7 @@ export default function render(client) {
     const username = form
       .append(listItem());
 
-    username
+    const usernameInput = username
       .input('email')
       .name('username')
       .model(passwordModel)
@@ -112,7 +112,10 @@ export default function render(client) {
         .text(error.toString(string, prefix))
         .ok(string.format('scola.auth.pop.ok'), () => {
           pop = null;
+          usernameInput.focus();
         });
+
+      pop.ok().focus();
     }
 
     function handleInsert(result) {
