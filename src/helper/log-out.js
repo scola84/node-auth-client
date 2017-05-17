@@ -14,9 +14,16 @@ export default function logOut(client, state = AUTH_LOGOUT) {
     model.clear();
   }
 
-  client
+  const target = client
     .router()
-    .target('scola.auth')
-    .route('login')
-    .go('replace');
+    .target('scola.auth');
+
+  let route = target
+    .current();
+
+  if (route === null) {
+    route = target.route('login');
+  }
+
+  route.go();
 }

@@ -1,4 +1,4 @@
-import { passwordValidator } from '@scola/auth-common';
+import { setValidator } from '@scola/auth-common';
 
 import {
   panel,
@@ -8,39 +8,31 @@ import {
   popAlert
 } from '@scola/d3';
 
-import { AUTH_VALID } from '../../helper/const';
-
 export default function render(client) {
   const string = client.i18n().string();
 
-  const tokenCache = client
+  const tokenModel = client
     .auth()
-    .cache();
+    .cache()
+    .model();
 
-  const tokenModel = tokenCache.model();
-
-  const passwordModel = model('/scola.auth.password', true)
+  const setModel = model('/scola.auth.set', true)
     .connection(tokenModel.connection());
 
   const routerModel = client.router().model();
   const actionModel = model('scola.auth.action');
 
-  const persistentStorage = client.storage() ||
-    localStorage;
-
-  const temporaryStorage = sessionStorage;
-
   return (route) => {
-    const loginPanel = panel()
+    const setPanel = panel()
       .model(actionModel);
 
-    loginPanel
+    setPanel
       .root()
-      .attr('action', '/login')
+      .attr('action', '/set')
       .attr('novalidate', 'novalidate')
-      .classed('auth login', true);
+      .classed('auth set', true);
 
-    loginPanel
+    setPanel
       .body()
       .styles({
         'padding': 0
@@ -52,19 +44,9 @@ export default function render(client) {
         'width': '100%'
       });
 
-    const form = loginPanel
+    const form = setPanel
       .append(itemList())
       .inset();
-
-    const username = form
-      .append(listItem());
-
-    const usernameInput = username
-      .input('email')
-      .name('username')
-      .model(passwordModel)
-      .placeholder(string.get('scola.auth.username'))
-      .tabindex(1);
 
     const password = form
       .append(listItem());
@@ -72,29 +54,29 @@ export default function render(client) {
     const passwordInput = password
       .input('password')
       .name('password')
-      .model(passwordModel)
+      .model(setModel)
       .placeholder(string.get('scola.auth.password'))
-      .tabindex(2);
+      .tabindex(1);
 
-    const submitButton = password
+    const password2 = form
+      .append(listItem());
+
+    const password2Input = password2
+      .input('password')
+      .name('password2')
+      .model(setModel)
+      .placeholder(string.get('scola.auth.password2'))
+      .tabindex(1);
+
+    const submitButton = password2
       .button('ion-ios-arrow-thin-right')
       .circle()
       .secondary()
       .tabindex(4);
 
-    const persistent = form
-      .append(listItem());
+    form.comment(string.format('scola.auth.set.comment'));
 
-    persistent
-      .text(string.get('scola.auth.persistent'));
-
-    persistent
-      .switch()
-      .name('persistent')
-      .model(passwordModel)
-      .tabindex(3);
-
-    const links = loginPanel
+    const links = setPanel
       .body()
       .append('div')
       .classed('scola links', true)
@@ -111,20 +93,20 @@ export default function render(client) {
         'width': '100%'
       });
 
-    const resetLink = links
+    const loginLink = links
       .append('span')
       .remove()
-      .classed('scola link reset', true)
+      .classed('scola link set', true)
       .styles({
         'cursor': 'pointer',
         'display': 'inline-block',
         'font-size': '0.9em',
         'margin': '0 0.5em'
       })
-      .text(string.format('scola.auth.reset.link'));
+      .text(string.format('scola.auth.login.link'));
 
-    if (client.auth().reset() === true) {
-      links.append(() => resetLink.node());
+    if (client.auth().password() === true) {
+      links.append(() => loginLink.node());
     }
 
     let pop = null;
@@ -143,78 +125,61 @@ export default function render(client) {
       }
 
       pop = popAlert()
-        .title(string.format('scola.auth.login.pop.title'))
+        .title(string.format('scola.auth.set.error.title'))
         .text(error.toString(string, prefix))
-        .ok(string.format('scola.auth.login.pop.ok'), () => {
+        .ok(string.format('scola.auth.set.pop.ok'), () => {
           pop = null;
-          usernameInput.focus();
+          passwordInput.focus();
         });
 
       pop.ok().focus();
     }
 
-    function handleInsert(result) {
+    function handleInsert() {
       submitButton.class('ion-ios-arrow-thin-right');
 
       if (pop !== null) {
         pop.destroy();
       }
 
-      if (passwordModel.get('persistent') === true) {
-        tokenCache.storage(persistentStorage);
-      } else {
-        tokenCache.storage(temporaryStorage);
-      }
+      pop = popAlert()
+        .title(string.format('scola.auth.set.success.title'))
+        .text(string.format('scola.auth.set.success.text'))
+        .ok(string.format('scola.auth.set.pop.ok'), () => {
+          pop = null;
+          loginLink.dispatch('click');
+        });
 
-      const user = client
-        .auth()
-        .user(result.user);
-
-      tokenModel
-        .set('user', user.toObject());
-
-      client
-        .user(user)
-        .state('auth', AUTH_VALID);
-
-      loginPanel
-        .root()
-        .attr('action', null);
-
-      route
-        .target()
-        .destroy();
-
-      route
-        .target()
-        .router()
-        .popState();
+      pop.ok().focus();
     }
 
     function handleSubmit() {
       submitButton.class('ion-load-d');
 
-      passwordValidator.validate(passwordModel.local(), (error) => {
+      setValidator.validate(setModel.local(), (error) => {
         if (error instanceof Error === true) {
           handleError(error, 'scola.auth.');
           return;
         }
 
-        passwordModel.insert();
+        setModel.insert();
       });
     }
 
     function handleCaps() {
       if (event.detail === false) {
-        form.comment(false);
+        form.comment(string.format('scola.auth.set.comment'));
         return;
       }
 
       form.comment(string.format('scola.auth.caps'));
     }
 
-    function handleReset() {
-      routerModel.set('scola.auth', 'reset');
+    function handleLogin() {
+      routerModel.set('scola.auth', {
+        path: 'login',
+        action: 'backward'
+      });
     }
 
     function handleDestroy() {
@@ -222,27 +187,31 @@ export default function render(client) {
 
       actionModel.removeListener('set', handleSubmit);
 
-      passwordModel.removeListener('error', handleError);
-      passwordModel.removeListener('insert', handleInsert);
-      passwordModel.clear();
+      setModel.removeListener('error', handleError);
+      setModel.removeListener('insert', handleInsert);
+      setModel.clear();
 
       passwordInput.input().on('caps.scola-auth', null);
-      resetLink.on('click.scola-auth', null);
+      password2Input.input().on('caps.scola-auth', null);
+      loginLink.on('click.scola-auth', null);
 
       form.destroy();
-      loginPanel.destroy();
+      setPanel.destroy();
     }
 
     client.on('open', handleOpen);
 
     actionModel.on('set', handleSubmit);
 
-    passwordModel.on('error', handleError);
-    passwordModel.on('insert', handleInsert);
+    setModel.on('error', handleError);
+    setModel.on('insert', handleInsert);
 
     passwordInput.input().on('caps.scola-auth', handleCaps);
-    resetLink.on('click.scola-auth', handleReset);
+    password2Input.input().on('caps.scola-auth', handleCaps);
+    loginLink.on('click.scola-auth', handleLogin);
 
-    route.element(loginPanel, handleDestroy);
+    setModel.set('token', route.parameter('token'));
+
+    route.element(setPanel, handleDestroy);
   };
 }

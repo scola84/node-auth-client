@@ -10,6 +10,8 @@ import logOut from './src/helper/log-out';
 import setUser from './src/helper/set-user';
 import targetRoute from './src/route/target';
 import loginRoute from './src/route/login';
+import resetRoute from './src/route/reset';
+import setRoute from './src/route/set';
 
 import {
   AUTH_INVALID,
@@ -21,6 +23,8 @@ function load(client) {
   loadAuth(client);
   targetRoute(client);
   loginRoute(client);
+  resetRoute(client);
+  setRoute(client);
 }
 
 export {
