@@ -1,4 +1,5 @@
 import { setValidator } from '@scola/auth-common';
+import { ScolaError } from '@scola/error';
 
 import {
   panel,
@@ -126,7 +127,7 @@ export default function render(client) {
 
       pop = popAlert()
         .title(string.format('scola.auth.set.error.title'))
-        .text(error.toString(string, prefix))
+        .text(error.toString(string, 'scola.error.', prefix))
         .ok(string.format('scola.auth.set.pop.ok'), () => {
           pop = null;
           passwordInput.focus();
@@ -158,6 +159,12 @@ export default function render(client) {
 
       setValidator.validate(setModel.local(), (error) => {
         if (error instanceof Error === true) {
+          if (error.message.indexOf('password=regexp:false') > -1) {
+            error = new ScolaError('400 invalid_password');
+          } else if (error.message.indexOf('password2=equal:false') > -1) {
+            error = new ScolaError('400 invalid_password2');
+          }
+
           handleError(error, 'scola.auth.');
           return;
         }
