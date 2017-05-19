@@ -144,7 +144,7 @@ export default function render(client) {
 
       pop = popAlert()
         .title(string.format('scola.auth.login.pop.title'))
-        .text(error.toString(string, prefix))
+        .text(error.toString(string, 'scola.error.', prefix))
         .ok(string.format('scola.auth.login.pop.ok'), () => {
           pop = null;
           usernameInput.focus();
