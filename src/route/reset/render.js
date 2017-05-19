@@ -29,7 +29,6 @@ export default function render(client) {
     resetPanel
       .root()
       .attr('action', '/reset')
-      .attr('novalidate', 'novalidate')
       .classed('auth reset', true);
 
     resetPanel
@@ -57,6 +56,10 @@ export default function render(client) {
       .model(resetModel)
       .placeholder(string.get('scola.auth.username'))
       .tabindex(1);
+
+    usernameInput
+      .input()
+      .attr('autocomplete', 'username');
 
     const submitButton = username
       .button('ion-ios-arrow-thin-right')

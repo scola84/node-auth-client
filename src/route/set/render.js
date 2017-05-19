@@ -30,7 +30,6 @@ export default function render(client) {
     setPanel
       .root()
       .attr('action', '/set')
-      .attr('novalidate', 'novalidate')
       .classed('auth set', true);
 
     setPanel
@@ -59,6 +58,10 @@ export default function render(client) {
       .placeholder(string.get('scola.auth.password'))
       .tabindex(1);
 
+    passwordInput
+      .input()
+      .attr('autocomplete', 'new-password');
+
     const password2 = form
       .append(listItem());
 
@@ -68,6 +71,10 @@ export default function render(client) {
       .model(setModel)
       .placeholder(string.get('scola.auth.password2'))
       .tabindex(1);
+
+    password2Input
+      .input()
+      .attr('autocomplete', 'new-password');
 
     const submitButton = password2
       .button('ion-ios-arrow-thin-right')
