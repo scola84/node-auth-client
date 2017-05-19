@@ -216,7 +216,6 @@ export default function render(client) {
     client.on('open', handleOpen);
 
     actionModel.on('set', handleSubmit);
-
     setModel.on('error', handleError);
     setModel.on('insert', handleInsert);
 

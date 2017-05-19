@@ -16,6 +16,8 @@ export default function render(client) {
     .cache()
     .model();
 
+  const passwordModel = model('/scola.auth.password');
+
   const resetModel = model('/scola.auth.reset', true)
     .connection(tokenModel.connection());
 
@@ -184,11 +186,12 @@ export default function render(client) {
     client.on('open', handleOpen);
 
     actionModel.on('set', handleSubmit);
-
     resetModel.on('error', handleError);
     resetModel.on('insert', handleInsert);
 
     loginLink.on('click.scola-auth', handleLogin);
+
+    resetModel.set('username', passwordModel.get('username'));
 
     route.element(resetPanel, handleDestroy);
   };

@@ -243,7 +243,6 @@ export default function render(client) {
     client.on('open', handleOpen);
 
     actionModel.on('set', handleSubmit);
-
     passwordModel.on('error', handleError);
     passwordModel.on('insert', handleInsert);
 
