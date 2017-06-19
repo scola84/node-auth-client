@@ -85,6 +85,7 @@ export default function render(client) {
 
     const submitButton = password
       .button('ion-ios-arrow-thin-right')
+      .type('submit')
       .circle()
       .secondary()
       .tabindex(4);

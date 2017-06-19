@@ -65,6 +65,7 @@ export default function render(client) {
 
     const submitButton = username
       .button('ion-ios-arrow-thin-right')
+      .type('submit')
       .circle()
       .secondary()
       .tabindex(4);
