@@ -11,11 +11,15 @@ export default function render() {
       background: 'none'
     });
 
-    target.element(popover, () => {
-      popover.show(false).on('end', () => {
-        popover.destroy();
-        target.routes(false);
+    target
+      .element(popover)
+      .once('destroy', () => {
+        popover
+          .show(false)
+          .on('end', () => {
+            popover.destroy();
+            target.routes(false);
+          });
       });
-    });
   };
 }

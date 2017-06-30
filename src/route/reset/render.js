@@ -1,6 +1,7 @@
 import { resetValidator } from '@scola/auth-common';
 
 import {
+  action,
   panel,
   itemList,
   listItem,
@@ -11,22 +12,19 @@ import {
 export default function render(client) {
   const string = client.i18n().string();
 
-  const tokenModel = client
-    .auth()
-    .cache()
-    .model();
+  const routerModel = client.router().model();
+  const tokenModel = client.auth().cache().model();
 
-  const passwordModel = model('/scola.auth.password');
-
+  const passwordModel = model('/scola.auth.password', true);
   const resetModel = model('/scola.auth.reset', true)
     .connection(tokenModel.connection());
 
-  const routerModel = client.router().model();
-  const actionModel = model('scola.auth.action');
+  const actions = action();
 
   return (route) => {
     const resetPanel = panel()
-      .model(actionModel);
+      .model(actions.model())
+      .name('submit');
 
     resetPanel
       .root()
@@ -105,61 +103,44 @@ export default function render(client) {
       links.append(() => loginLink.node());
     }
 
-    let pop = null;
+    actions
+      .register('submit', () => {
+        submitButton.class('ion-load-d');
 
-    function handleOpen(value) {
-      form.disabled(!value);
-    }
+        resetValidator.validate(resetModel.local(), (error) => {
+          if (!error) {
+            resetModel.insert();
+            return;
+          }
 
-    function handleError(error, prefix) {
-      if (error.code !== 'invalid_state') {
-        submitButton.class('ion-ios-arrow-thin-right');
-      }
-
-      if (pop !== null) {
-        pop.destroy();
-      }
-
-      pop = popAlert()
-        .title(string.format('scola.auth.reset.error.title'))
-        .text(error.toString(string, 'scola.error.', prefix))
-        .ok(string.format('scola.auth.reset.pop.ok'), () => {
-          pop = null;
-          usernameInput.focus();
+          handleError(error.prefix('field', 'scola.auth.'));
         });
+      });
 
-      pop.ok().focus();
+    function handleError(error) {
+      submitButton.class('ion-ios-arrow-thin-right');
+
+      popAlert()
+        .title(string.format('scola.auth.reset.error.title'))
+        .text(error.toString(string))
+        .ok(string.format('scola.auth.reset.pop.ok'), () => {
+          usernameInput.focus();
+        })
+        .ok()
+        .focus();
     }
 
     function handleInsert() {
       submitButton.class('ion-ios-arrow-thin-right');
 
-      if (pop !== null) {
-        pop.destroy();
-      }
-
-      pop = popAlert()
+      popAlert()
         .title(string.format('scola.auth.reset.success.title'))
         .text(string.format('scola.auth.reset.success.text'))
         .ok(string.format('scola.auth.reset.pop.ok'), () => {
-          pop = null;
           loginLink.dispatch('click');
-        });
-
-      pop.ok().focus();
-    }
-
-    function handleSubmit() {
-      submitButton.class('ion-load-d');
-
-      resetValidator.validate(resetModel.local(), (error) => {
-        if (error instanceof Error === true) {
-          handleError(error, 'scola.auth.');
-          return;
-        }
-
-        resetModel.insert();
-      });
+        })
+        .ok()
+        .focus();
     }
 
     function handleLogin() {
@@ -169,31 +150,50 @@ export default function render(client) {
       });
     }
 
-    function handleDestroy() {
-      client.removeListener('open', handleOpen);
+    function handleOpen(value) {
+      form.disabled(!value);
+    }
 
-      actionModel.removeListener('set', handleSubmit);
+    function addListeners() {
+      client.on('open', handleOpen);
+
+      resetModel.on('error', handleError);
+      resetModel.on('insert', handleInsert);
+
+      loginLink.on('click.scola-auth', handleLogin);
+    }
+
+    function removeListeners() {
+      client.removeListener('open', handleOpen);
 
       resetModel.removeListener('error', handleError);
       resetModel.removeListener('insert', handleInsert);
-      resetModel.clear();
 
       loginLink.on('click.scola-auth', null);
+    }
+
+    function handleAppend() {
+      addListeners();
+      resetModel.set('username', passwordModel.get('username'));
+    }
+
+    function handleDestroy() {
+      removeListeners();
+
+      route.removeListener('append', handleAppend);
+      route.removeListener('destroy', handleDestroy);
+      route.removeListener('remove', removeListeners);
+
+      resetModel.clear();
 
       form.destroy();
       resetPanel.destroy();
     }
 
-    client.on('open', handleOpen);
-
-    actionModel.on('set', handleSubmit);
-    resetModel.on('error', handleError);
-    resetModel.on('insert', handleInsert);
-
-    loginLink.on('click.scola-auth', handleLogin);
-
-    resetModel.set('username', passwordModel.get('username'));
-
-    route.element(resetPanel, handleDestroy);
+    route
+      .on('append', handleAppend)
+      .on('destroy', handleDestroy)
+      .on('remove', removeListeners)
+      .element(resetPanel);
   };
 }

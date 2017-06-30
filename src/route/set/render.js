@@ -2,6 +2,7 @@ import { setValidator } from '@scola/auth-common';
 import { ScolaError } from '@scola/error';
 
 import {
+  action,
   panel,
   itemList,
   listItem,
@@ -12,20 +13,18 @@ import {
 export default function render(client) {
   const string = client.i18n().string();
 
-  const tokenModel = client
-    .auth()
-    .cache()
-    .model();
+  const routerModel = client.router().model();
+  const tokenModel = client.auth().cache().model();
 
   const setModel = model('/scola.auth.set', true)
     .connection(tokenModel.connection());
 
-  const routerModel = client.router().model();
-  const actionModel = model('scola.auth.action');
+  const actions = action();
 
   return (route) => {
     const setPanel = panel()
-      .model(actionModel);
+      .model(actions.model())
+      .name('submit');
 
     setPanel
       .root()
@@ -118,68 +117,25 @@ export default function render(client) {
       links.append(() => loginLink.node());
     }
 
-    let pop = null;
+    actions
+      .register('submit', () => {
+        submitButton.class('ion-load-d');
 
-    function handleOpen(value) {
-      form.disabled(!value);
-    }
+        setValidator.validate(setModel.local(), (error) => {
+          if (!error) {
+            setModel.insert();
+            return;
+          }
 
-    function handleError(error, prefix) {
-      if (error.code !== 'invalid_state') {
-        submitButton.class('ion-ios-arrow-thin-right');
-      }
-
-      if (pop !== null) {
-        pop.destroy();
-      }
-
-      pop = popAlert()
-        .title(string.format('scola.auth.set.error.title'))
-        .text(error.toString(string, 'scola.error.', prefix))
-        .ok(string.format('scola.auth.set.pop.ok'), () => {
-          pop = null;
-          passwordInput.focus();
-        });
-
-      pop.ok().focus();
-    }
-
-    function handleInsert() {
-      submitButton.class('ion-ios-arrow-thin-right');
-
-      if (pop !== null) {
-        pop.destroy();
-      }
-
-      pop = popAlert()
-        .title(string.format('scola.auth.set.success.title'))
-        .text(string.format('scola.auth.set.success.text'))
-        .ok(string.format('scola.auth.set.pop.ok'), () => {
-          pop = null;
-          loginLink.dispatch('click');
-        });
-
-      pop.ok().focus();
-    }
-
-    function handleSubmit() {
-      submitButton.class('ion-load-d');
-
-      setValidator.validate(setModel.local(), (error) => {
-        if (error instanceof Error === true) {
           if (error.message.indexOf('password=regexp:false') > -1) {
             error = new ScolaError('400 invalid_password');
           } else if (error.message.indexOf('password2=equal:false') > -1) {
             error = new ScolaError('400 invalid_password2');
           }
 
-          handleError(error, 'scola.auth.');
-          return;
-        }
-
-        setModel.insert();
+          handleError(error.prefix('field', 'scola.auth.'));
+        });
       });
-    }
 
     function handleCaps() {
       if (event.detail === false) {
@@ -190,6 +146,32 @@ export default function render(client) {
       form.comment(string.format('scola.auth.caps'));
     }
 
+    function handleError(error) {
+      submitButton.class('ion-ios-arrow-thin-right');
+
+      popAlert()
+        .title(string.format('scola.auth.set.error.title'))
+        .text(error.toString(string))
+        .ok(string.format('scola.auth.set.pop.ok'), () => {
+          passwordInput.focus();
+        })
+        .ok()
+        .focus();
+    }
+
+    function handleInsert() {
+      submitButton.class('ion-ios-arrow-thin-right');
+
+      popAlert()
+        .title(string.format('scola.auth.set.success.title'))
+        .text(string.format('scola.auth.set.success.text'))
+        .ok(string.format('scola.auth.set.pop.ok'), () => {
+          loginLink.dispatch('click');
+        })
+        .ok()
+        .focus();
+    }
+
     function handleLogin() {
       routerModel.set('scola.auth', {
         path: 'login',
@@ -197,35 +179,51 @@ export default function render(client) {
       });
     }
 
-    function handleDestroy() {
-      client.removeListener('open', handleOpen);
+    function handleOpen(value) {
+      form.disabled(!value);
+    }
 
-      actionModel.removeListener('set', handleSubmit);
+    function addListeners() {
+      client.on('open', handleOpen);
+
+      setModel.on('error', handleError);
+      setModel.on('insert', handleInsert);
+
+      passwordInput.input().on('caps.scola-auth', handleCaps);
+      password2Input.input().on('caps.scola-auth', handleCaps);
+      loginLink.on('click.scola-auth', handleLogin);
+    }
+
+    function removeListeners() {
+      client.removeListener('open', handleOpen);
 
       setModel.removeListener('error', handleError);
       setModel.removeListener('insert', handleInsert);
-      setModel.clear();
 
       passwordInput.input().on('caps.scola-auth', null);
       password2Input.input().on('caps.scola-auth', null);
       loginLink.on('click.scola-auth', null);
+    }
+
+    function handleDestroy() {
+      removeListeners();
+
+      route.removeListener('append', addListeners);
+      route.removeListener('destroy', handleDestroy);
+      route.removeListener('remove', removeListeners);
+
+      setModel.clear();
 
       form.destroy();
       setPanel.destroy();
     }
 
-    client.on('open', handleOpen);
-
-    actionModel.on('set', handleSubmit);
-    setModel.on('error', handleError);
-    setModel.on('insert', handleInsert);
-
-    passwordInput.input().on('caps.scola-auth', handleCaps);
-    password2Input.input().on('caps.scola-auth', handleCaps);
-    loginLink.on('click.scola-auth', handleLogin);
+    route
+      .on('append', addListeners)
+      .on('destroy', handleDestroy)
+      .on('remove', removeListeners)
+      .element(setPanel);
 
     setModel.set('token', route.parameter('token'));
-
-    route.element(setPanel, handleDestroy);
   };
 }
