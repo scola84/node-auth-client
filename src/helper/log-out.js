@@ -1,6 +1,4 @@
-import { AUTH_LOGOUT } from './const';
-
-export default function logOut(client, state = AUTH_LOGOUT) {
+export default function logOut(client, state = 'logout') {
   const model = client
     .auth()
     .cache()
@@ -10,7 +8,7 @@ export default function logOut(client, state = AUTH_LOGOUT) {
     .user(false)
     .state('auth', state);
 
-  if (state === AUTH_LOGOUT) {
+  if (state === 'logout') {
     model.clear();
   }
 

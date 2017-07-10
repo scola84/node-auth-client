@@ -2,11 +2,6 @@
 
 import logOut from './log-out';
 
-import {
-  AUTH_INVALID,
-  AUTH_VALID
-} from './const';
-
 export default function logIn(client) {
   const model = client
     .auth()
@@ -20,14 +15,14 @@ export default function logIn(client) {
 
   function handleError() {
     model.removeListener('insert', handleInsert);
-    logOut(client, AUTH_INVALID);
+    logOut(client, 'invalid');
   }
 
   function handleInsert() {
     model.removeListener('error', handleError);
 
     client
-      .state('auth', AUTH_VALID);
+      .state('auth', 'valid');
 
     client
       .router()

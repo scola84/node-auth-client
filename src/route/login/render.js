@@ -9,8 +9,6 @@ import {
   popAlert
 } from '@scola/d3';
 
-import { AUTH_VALID } from '../../helper/const';
-
 export default function render(client) {
   const string = client.i18n().string();
 
@@ -187,7 +185,7 @@ export default function render(client) {
 
       client
         .user(user)
-        .state('auth', AUTH_VALID);
+        .state('auth', 'valid');
 
       loginPanel
         .root()

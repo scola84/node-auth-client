@@ -14,12 +14,6 @@ import loginRoute from './src/route/login';
 import resetRoute from './src/route/reset';
 import setRoute from './src/route/set';
 
-import {
-  AUTH_INVALID,
-  AUTH_LOGOUT,
-  AUTH_VALID
-} from './src/helper/const';
-
 function load(client) {
   loadAuth(client);
   prepareReset(client);
@@ -31,9 +25,6 @@ function load(client) {
 }
 
 export {
-  AUTH_INVALID,
-  AUTH_LOGOUT,
-  AUTH_VALID,
   Auth,
   User,
   authorize,
