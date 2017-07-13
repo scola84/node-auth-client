@@ -166,17 +166,21 @@ export default function renderLogin(client) {
           .classed('ion-load-d', false)
           .classed('ion-ios-arrow-thin-right', true);
 
-        popAlert()
+        const pop = popAlert()
           .title(string.format('scola.auth.login.pop.title'))
           .text(error.toString(string))
           .ok(string.format('scola.auth.login.pop.ok'), () => {
-            usernameInput.focus();
-          })
+            usernameInput.input().node().focus();
+          });
+
+        pop
           .ok()
+          .button()
+          .node()
           .focus();
       }
 
-      function handleInsert(result) {
+      function handleInsert(data) {
         submitButton
           .icon()
           .classed('ion-load-d', false)
@@ -190,7 +194,7 @@ export default function renderLogin(client) {
 
         const user = client
           .auth()
-          .user(result.user);
+          .user(data);
 
         tokenModel
           .set('user', user.toObject());

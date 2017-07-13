@@ -121,13 +121,17 @@ export default function renderReset(client) {
           .classed('ion-load-d', false)
           .classed('ion-ios-arrow-thin-right', true);
 
-        popAlert()
+        const pop = popAlert()
           .title(string.format('scola.auth.reset.error.title'))
           .text(error.toString(string))
           .ok(string.format('scola.auth.reset.pop.ok'), () => {
-            usernameInput.focus();
-          })
+            usernameInput.input().node().focus();
+          });
+
+        pop
           .ok()
+          .button()
+          .node()
           .focus();
       }
 
@@ -137,13 +141,17 @@ export default function renderReset(client) {
           .classed('ion-load-d', false)
           .classed('ion-ios-arrow-thin-right', true);
 
-        popAlert()
+        const pop = popAlert()
           .title(string.format('scola.auth.reset.success.title'))
           .text(string.format('scola.auth.reset.success.text'))
           .ok(string.format('scola.auth.reset.pop.ok'), () => {
             loginLink.dispatch('click');
-          })
+          });
+
+        pop
           .ok()
+          .button()
+          .node()
           .focus();
       }
 

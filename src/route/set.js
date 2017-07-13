@@ -77,7 +77,6 @@ export default function renderSet(client) {
 
       password2Input
         .input()
-        .input()
         .attrs({
           'autocomplete': 'new-password',
           'placeholder': string.get('scola.auth.password2'),
@@ -146,13 +145,17 @@ export default function renderSet(client) {
           .classed('ion-load-d', false)
           .classed('ion-ios-arrow-thin-right', true);
 
-        popAlert()
+        const pop = popAlert()
           .title(string.format('scola.auth.set.error.title'))
           .text(error.toString(string))
           .ok(string.format('scola.auth.set.pop.ok'), () => {
-            passwordInput.focus();
-          })
+            passwordInput.input().node().focus();
+          });
+
+        pop
           .ok()
+          .button()
+          .node()
           .focus();
       }
 
@@ -162,13 +165,17 @@ export default function renderSet(client) {
           .classed('ion-load-d', false)
           .classed('ion-ios-arrow-thin-right', true);
 
-        popAlert()
+        const pop = popAlert()
           .title(string.format('scola.auth.set.success.title'))
           .text(string.format('scola.auth.set.success.text'))
           .ok(string.format('scola.auth.set.pop.ok'), () => {
             loginLink.dispatch('click');
-          })
+          });
+
+        pop
           .ok()
+          .button()
+          .node()
           .focus();
       }
 
