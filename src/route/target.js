@@ -7,9 +7,12 @@ export default function pop(client) {
       .move(false)
       .size('34em', '34em');
 
-    popover.root().styles({
-      background: 'none'
-    });
+    popover
+      .root()
+      .classed('auth', true)
+      .styles({
+        background: 'none'
+      });
 
     target
       .element(popover)
