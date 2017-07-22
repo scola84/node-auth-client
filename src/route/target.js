@@ -1,7 +1,9 @@
+import { select } from 'd3';
 import { popOver } from '@scola/d3';
 
 export default function pop(client) {
   function renderTarget(target) {
+    const body = select('body');
     const popover = popOver()
       .lock(true)
       .move(false)
@@ -22,8 +24,11 @@ export default function pop(client) {
           .on('end', () => {
             popover.destroy();
             target.routes(false);
+            body.classed('scola auth', false);
           });
       });
+
+    body.classed('scola auth', true);
   }
 
   client
