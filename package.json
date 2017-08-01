@@ -10,6 +10,7 @@
   "dependencies": {
     "@scola/auth-common": "^5.0.0",
     "@scola/d3": "^5.0.0",
-    "@scola/error": "^5.1.0"
+    "@scola/error": "^5.1.0",
+    "d3": "^4.10.0"
   }
 }
